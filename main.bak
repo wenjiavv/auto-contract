@@ -1,0 +1,37 @@
+import docx
+import os
+import config
+from docx2pdf import convert
+
+
+TEMPLATE_PATH = config.CONFIG['TEMPLATE_PATH']
+OUTPUT_PATH = config.CONFIG['OUTPUT_PATH']
+
+for filename in os.listdir(TEMPLATE_PATH):
+    if not filename.endswith('.docx'):
+        continue
+    template_file = os.path.join(TEMPLATE_PATH, filename)
+
+    doc = docx.Document(template_file)
+
+    elements = config.elements
+
+    for element, value in elements.items():
+        for paragraph in doc.paragraphs:
+            if element in paragraph.text:
+                paragraph.text = paragraph.text.replace(element, value)
+
+        for table in doc.tables:
+            for row in table.rows:
+                for cell in row.cells:
+                    if element in cell.text:
+                        cell.text = cell.text.replace(element, value)
+
+    contract_month = elements['[month]']
+    contract_day = elements['[day]']
+    new_filename = filename.replace('TEMP', f'{contract_month}{contract_day}')
+    output_file = os.path.join(OUTPUT_PATH, new_filename)
+    doc.save(output_file)
+
+    pdf_file = os.path.splitext(output_file)[0] + ".pdf"
+    convert(output_file, pdf_file)
