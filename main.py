@@ -73,6 +73,8 @@ for filename in os.listdir(TEMPLATE_PATH):
     pdf_file = os.path.splitext(output_file)[0] + ".pdf"
     convert(output_file, pdf_file)
 
+    os.remove(output_file)
+
 today = datetime.today().strftime('%Y-%m-%d')
 
 # 创建新的文件夹名字
